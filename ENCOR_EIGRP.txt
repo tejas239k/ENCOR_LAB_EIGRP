@@ -1,0 +1,252 @@
+R1
+enable
+configure terminal
+hostname R1
+interface e0/0
+no switchport
+ip address 10.1.12.1 255.255.255.0
+no shutdown
+exit
+interface e0/1
+no switchport
+ip address 10.1.14.1 255.255.255.0
+no shutdown
+exit
+interface e0/2
+no switchport
+ip address 10.1.13.1 255.255.255.0
+no shutdown
+exit
+interface e0/3
+no switchport
+ip address 10.1.16.1 255.255.255.0
+no shutdown
+exit
+
+
+R2
+enable
+configure terminal
+hostname R2
+interface e0/0
+no switchport
+ip address 10.1.12.2 255.255.255.0
+no shutdown
+exit
+interface e0/1
+no switchport
+ip address 10.1.25.2 255.255.255.0
+no shutdown
+exit
+
+R3
+enable
+configure terminal
+hostname R3
+interface e0/0
+no switchport
+ip address 10.1.13.3 255.255.255.0
+no shutdown
+exit
+interface e0/1
+no switchport
+ip address 10.1.35.3 255.255.255.0
+no shutdown
+exit
+
+R4
+enable
+configure terminal
+hostname R4
+interface e0/0
+no switchport
+ip address 10.1.14.4 255.255.255.0
+no shutdown
+exit
+interface e0/1
+no switchport
+ip address 10.1.45.4 255.255.255.0
+no shutdown
+exit
+
+
+R5
+enable
+configure terminal
+hostname R5
+interface e0/0
+no switchport
+ip address 10.1.45.5 255.255.255.0
+no shutdown
+exit
+interface e0/1
+no switchport
+ip address 10.1.25.5 255.255.255.0
+no shutdown
+exit
+interface e0/2
+no switchport
+ip address 10.1.35.5 255.255.255.0
+no shutdown
+exit
+interface e0/3
+no switchport
+ip address 10.1.57.5 255.255.255.0
+no shutdown
+exit
+
+R6
+enable
+configure terminal
+hostname R6
+interface e0/0
+no switchport
+ip address 10.1.16.6 255.255.255.0
+no shutdown
+exit
+
+R7
+enable
+configure terminal
+hostname R7
+interface e0/0
+no switchport
+ip address 10.1.57.7 255.255.255.0
+no shutdown
+exit
+
+EIGRP Configuration
+
+R1
+router eigrp 1
+network 10.1.12.0 0.0.0.255
+network 10.1.13.0 0.0.0.255
+network 10.1.14.0 0.0.0.255
+network 10.1.16.0 0.0.0.255
+no auto-summary
+
+R2
+router eigrp 1
+network 10.1.12.0 0.0.0.255
+network 10.1.25.0 0.0.0.255
+no auto-summary
+
+R3
+router eigrp 1
+network 10.1.13.0 0.0.0.255
+network 10.1.35.0 0.0.0.255
+no auto-summary
+
+R4
+router eigrp 1
+network 10.1.14.0 0.0.0.255
+network 10.1.45.0 0.0.0.255
+no auto-summary
+
+R5
+router eigrp 1
+network 10.1.25.0 0.0.0.255
+network 10.1.35.0 0.0.0.255
+network 10.1.45.0 0.0.0.255
+network 10.1.57.0 0.0.0.255
+no auto-summary
+
+R6
+ip route 0.0.0.0 0.0.0.0 10.1.16.1
+
+R7
+ip route 0.0.0.0 0.0.0.0 10.1.57.5
+
+_____________________________________
+
+Changing the bandwidth on the interface
+
+R1
+interface e0/0
+bandwidth 128
+exit
+interface e0/1
+bandwidth 512
+exit
+interface e0/2
+bandwidth 1544
+exit
+
+R2
+interface e0/0
+bandwidth 128
+exit
+interface e0/1
+bandwidth 512
+exit
+
+R3
+interface e0/0
+bandwidth 1544
+exit
+interface e0/1
+bandwidth 256
+exit
+
+R4
+interface e0/0
+bandwidth 512
+exit
+interface e0/1
+bandwidth 128
+exit
+
+R5
+interface e0/0
+bandwidth 128
+exit
+interface e0/1
+bandwidth 512
+exit
+interface e0/2
+bandwidth 256
+exit
+____________________________
+
+To perform UCMP use the variance command
+
+router eigrp 1
+variance 2
+
+_____________________________
+
+Summarization
+
+R1
+
+interface loopback 41
+ip address 95.1.8.1 255.255.255.0
+exit
+interface loopback 42
+ip address 95.1.9.1 255.255.255.0
+exit
+interface loopback 43
+ip address 95.1.10.1 255.255.255.0
+exit
+interface loopback 44
+ip address 95.1.11.1 255.255.255.0
+exit
+router eigrp 1
+network 95.0.0.0
+
+interface range e0/0-2
+ip summary-address eigrp 1 95.1.8.0 255.255.252.0
+
+________________________________________
+
+Calculation of Metric, Throughput, Delay
+
+Metric = Throughput + Latency
+
+Throughput = 10,000,000/BW(Min)*65536
+
+Delay = interface delay *1,000,000(Pico Seconds) - For 10MBPS
+Delay = 10,000,000/BW(GBPS) - For 1GBPS and above
+Metric = (10000000/10000*65536) + (delay(sum)/1000000*65536)
+
+Latency = Delay(sum)/1000000*65536
